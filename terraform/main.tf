@@ -10,15 +10,16 @@ terraform {
 provider "proxmox" {
     endpoint  = var.virtual_environment_endpoint
     api_token = var.virtual_environment_api_token
-    insecure  = true
+    insecure  = true # Käyttää self-signed-sertifikaattia.
 }
 
 resource "proxmox_virtual_environment_vm" "vm" {
-    name                = "cloned-vm"
+    count               = var.instance_count
+    name                = "cloned-vm-${count.index + 1}"
     node_name           = var.proxmox_node_name
-    vm_id               = 200
+    vm_id               = 200 + count.index
     clone {
-        vm_id = "9000" # templaten id
+        vm_id = "9000" # mallipohjan id
         full = true
     }
     cpu {
@@ -27,12 +28,19 @@ resource "proxmox_virtual_environment_vm" "vm" {
     memory {
         dedicated = 2048
     }
-    # disk hoituu automaattisesti, ei tarvitse erikseen
-    network_device {
+    disk {
+        datastore_id = "local-lvm"
+        interface = "scsi0"
+        size = 10 # Gigatavua
+        }
+
+network_device {
         bridge = "vmbr0"
     }
+    # Ei odoteta vierasagenttia ennen suorituksen valmistumista,
+    # mikä estää Terraformin jumittumisen ensimmäisen käynnistyksen aikana
     agent {
-    enabled = false # ei odota vierasagenttia ennen terraform apply:ta
+        enabled = false
     }
     initialization {
         user_account {
@@ -42,9 +50,22 @@ resource "proxmox_virtual_environment_vm" "vm" {
         }
         ip_config{
             ipv4 {
-                address = "dhcp"
+                address = "192.168.0.${251 + count.index}/24"
+                gateway = "192.168.0.1"
             }
         }
     }
 }
 
+# Luo Ansiblelle inventory.ini tiedoston automaattisesti
+locals {
+  vm_ips = [for vm in proxmox_virtual_environment_vm.vm :
+    split("/", vm.initialization[0].ip_config[0].ipv4[0].address)[0]]
+}
+
+resource "local_file" "ansible_inventory" {
+  filename = "${path.module}/../ansible/inventory.ini"
+  content = templatefile("${path.module}/inventory.tftpl", {
+    ips = local.vm_ips
+  })
+}

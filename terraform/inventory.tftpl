@@ -1,0 +1,4 @@
+[app_servers]
+%{ for ip in ips ~}
+${ip} ansible_user=vm_ubuntu
+%{ endfor ~}
