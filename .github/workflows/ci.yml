@@ -1,0 +1,30 @@
+name: "CI: Lint & Validate"
+on:
+  push:
+    paths:
+      - 'terraform/**'
+      - 'ansible/**'
+jobs:
+  terraform-validate:
+    name: "Terraform Validate"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init
+      - run: terraform fmt -check
+        continue-on-error: true
+      - run: terraform validate
+
+  ansible-lint:
+    name: "Ansible Lint"
+    runs-on: ubuntu-latest 
+    defaults:
+      run:
+        working-directory: ansible
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ansible/ansible-lint@main

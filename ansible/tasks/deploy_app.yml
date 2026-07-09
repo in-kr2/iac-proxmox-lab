@@ -5,7 +5,7 @@
     dest: "/opt/web-app/"
   register: app_files
 
-- name: Rakennetaan Docker-image
+- name: Rakennetaan Docker-kuva
   community.docker.docker_image:
     name: web-app
     build:
