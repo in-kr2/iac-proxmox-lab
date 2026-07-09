@@ -1,0 +1,13 @@
+---
+- name: Verkkopalvelimen konfigurointi
+  hosts: app_servers
+  become: yes
+  tasks:
+    - name: Odota, että kone on käyttövalmis
+      ansible.builtin.import_tasks: tasks/wait_ready.yml
+
+    - name: Asenna ja käynnistä Docker
+      ansible.builtin.import_tasks: tasks/docker.yml
+
+    - name: Ota sovellus käyttöön
+      ansible.builtin.import_tasks: tasks/deploy_app.yml

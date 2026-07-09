@@ -1,0 +1,23 @@
+---
+- name: Kopioidaan sovellus ja sen tiedot
+  ansible.builtin.copy:
+    src: "../app/nginx/"
+    dest: "/opt/web-app/"
+  register: app_files
+
+- name: Rakennetaan Docker-image
+  community.docker.docker_image:
+    name: web-app
+    build:
+      path: /opt/web-app
+    source: build
+    force_source: "{{ app_files.changed }}"
+
+- name: Käynnistetään Nginx-kontti
+  community.docker.docker_container:
+    name: web-service
+    image: web-app
+    state: started
+    restart_policy: unless-stopped
+    published_ports:
+      - "80:80"

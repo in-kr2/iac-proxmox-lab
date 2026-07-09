@@ -1,0 +1,10 @@
+---
+- name: Odota toimivaa yhteyttä
+  ansible.builtin.wait_for_connection:
+    timeout: 300
+
+- name: Odota, että Cloud-Init on valmis
+  ansible.builtin.command: cloud-init status --wait
+  register: cloudinit_status
+  changed_when: false
+  failed_when: cloudinit_status.rc == 1

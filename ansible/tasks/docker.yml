@@ -1,0 +1,14 @@
+---
+- name: Asennetaan Docker ja riippuvuudet
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - python3-docker
+    state: present
+    update_cache: yes
+
+- name: Varmistetaan, että Docker on käynnissä
+  ansible.builtin.systemd_service:
+    name: docker
+    state: started
+    enabled: yes
