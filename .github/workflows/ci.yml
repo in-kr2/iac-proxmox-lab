@@ -29,4 +29,4 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ansible/ansible-lint@main
         with:
-          requirements_file: "./requirements.yml"
+          requirements_file: "./ansible/requirements.yml"
