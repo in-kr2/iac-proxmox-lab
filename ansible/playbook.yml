@@ -2,6 +2,7 @@
 - name: Verkkopalvelimen konfigurointi
   hosts: app_servers
   become: true
+  gather_facts: false
   tasks:
     - name: Odota, että kone on käyttövalmis
       ansible.builtin.import_tasks: tasks/wait_ready.yml
