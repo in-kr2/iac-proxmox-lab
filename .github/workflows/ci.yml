@@ -21,10 +21,12 @@ jobs:
 
   ansible-lint:
     name: "Ansible Lint"
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ansible
     steps:
       - uses: actions/checkout@v4
       - uses: ansible/ansible-lint@main
+        with:
+          requirements_file: "./requirements.yml"

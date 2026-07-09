@@ -8,3 +8,4 @@
   register: cloudinit_status
   changed_when: false
   failed_when: cloudinit_status.rc == 1
+  
