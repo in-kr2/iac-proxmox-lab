@@ -3,6 +3,7 @@
   ansible.builtin.copy:
     src: "../app/nginx/"
     dest: "/opt/web-app/"
+    mode: '0644'
   register: app_files
 
 - name: Rakennetaan Docker-kuva
